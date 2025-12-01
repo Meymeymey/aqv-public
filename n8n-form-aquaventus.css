@@ -288,6 +288,19 @@ form .form-footer a:hover {
   text-decoration: underline;
 }
 
+/* Invite/notice variant */
+.invite-card {
+  max-width: 880px;
+  padding: 44px 48px;
+  background: linear-gradient(145deg, rgba(161, 218, 247, 0.18), rgba(0, 177, 235, 0.08));
+}
+
+.invite-card .form-header {
+  text-align: center;
+  font-size: 30px;
+  margin-bottom: 28px;
+}
+
 /* Responsive tweaks */
 @media (max-width: 640px) {
   .n8n-form,
