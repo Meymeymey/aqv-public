@@ -607,6 +607,50 @@
       transform: translateY(0);
       opacity: 1;
     }
+
+    /* Translate URL Button */
+    .link-input-wrapper {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    .link-input-wrapper input {
+      flex: 1;
+    }
+
+    .btn-translate {
+      padding: 12px 14px;
+      background: #e8f4f8;
+      border: 1px solid #0099cc;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: all 0.2s;
+      flex-shrink: 0;
+      height: 46px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-translate:hover {
+      background: #0099cc;
+    }
+
+    .btn-translate:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-translate.loading {
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
   </style>
 </head>
 <body>
@@ -742,7 +786,11 @@
             </div>
             <div class="form-group">
               <label>Button 1 Link</label>
-              <input type="text" id="slideButton1Link" placeholder="https://..." oninput="updateSlide()">
+              <div class="link-input-wrapper">
+                <input type="text" id="slideButton1Link" placeholder="https://..." oninput="updateSlide()">
+                <button type="button" class="btn-translate" onclick="translateUrl('slideButton1Link')" title="Deutsche URL in englische übersetzen (hreflang)">🌐</button>
+              </div>
+              <small>Klicke 🌐 um die englische Version einer deutschen URL zu finden</small>
             </div>
           </div>
           <div class="form-row">
@@ -752,7 +800,11 @@
             </div>
             <div class="form-group">
               <label>Button 2 Link</label>
-              <input type="text" id="slideButton2Link" placeholder="https://..." oninput="updateSlide()">
+              <div class="link-input-wrapper">
+                <input type="text" id="slideButton2Link" placeholder="https://..." oninput="updateSlide()">
+                <button type="button" class="btn-translate" onclick="translateUrl('slideButton2Link')" title="Deutsche URL in englische übersetzen (hreflang)">🌐</button>
+              </div>
+              <small>Klicke 🌐 um die englische Version einer deutschen URL zu finden</small>
             </div>
           </div>
         </div>
@@ -1803,6 +1855,111 @@ ${slidesHTML}
       }
       values.push(current.trim().replace(/^["']|["']$/g, ''));
       return values;
+    }
+
+    // Translate German URL to English using hreflang
+    async function translateUrl(inputId) {
+      const input = document.getElementById(inputId);
+      const url = input.value.trim();
+
+      if (!url) {
+        showToast('Bitte zuerst eine URL eingeben');
+        return;
+      }
+
+      // Check if it's an aquaventus.org URL
+      if (!url.includes('aquaventus.org')) {
+        showToast('Nur aquaventus.org URLs werden unterstützt');
+        return;
+      }
+
+      // Check if already English
+      if (url.includes('/en/')) {
+        showToast('URL ist bereits auf Englisch');
+        return;
+      }
+
+      // Find the button and show loading state
+      const btn = input.parentElement.querySelector('.btn-translate');
+      btn.classList.add('loading');
+      btn.disabled = true;
+
+      try {
+        // Fetch the German page
+        const response = await fetch(url, {
+          mode: 'cors',
+          credentials: 'omit'
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const html = await response.text();
+
+        // Parse the HTML to find hreflang="en" link
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+
+        // Look for hreflang="en" link
+        const englishLink = doc.querySelector('link[hreflang="en"]') ||
+                           doc.querySelector('link[hreflang="en-US"]') ||
+                           doc.querySelector('link[hreflang="en-GB"]');
+
+        if (englishLink && englishLink.href) {
+          input.value = englishLink.href;
+          updateSlide();
+          showToast('Englische URL gefunden!');
+        } else {
+          // Try to find language switcher link
+          const langSwitcher = doc.querySelector('a[hreflang="en"]') ||
+                              doc.querySelector('.wpml-ls-link[href*="/en/"]') ||
+                              doc.querySelector('a.lang-en') ||
+                              doc.querySelector('a[href*="/en/"][class*="lang"]');
+
+          if (langSwitcher && langSwitcher.href) {
+            input.value = langSwitcher.href;
+            updateSlide();
+            showToast('Englische URL gefunden!');
+          } else {
+            showToast('Keine englische Version gefunden');
+          }
+        }
+      } catch (error) {
+        console.error('Translate URL error:', error);
+
+        // CORS error - show helpful message
+        if (error.message.includes('CORS') || error.message.includes('NetworkError') || error.name === 'TypeError') {
+          showToast('CORS-Fehler: Öffne diese Datei von aquaventus.org oder nutze einen lokalen Server');
+        } else {
+          showToast('Fehler beim Laden der Seite: ' + error.message);
+        }
+      } finally {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+      }
+    }
+
+    // Batch translate all German URLs to English
+    async function translateAllUrls() {
+      const inputs = ['slideButton1Link', 'slideButton2Link'];
+      let translated = 0;
+
+      for (const inputId of inputs) {
+        const input = document.getElementById(inputId);
+        const url = input.value.trim();
+
+        if (url && url.includes('aquaventus.org') && !url.includes('/en/')) {
+          await translateUrl(inputId);
+          translated++;
+          // Small delay between requests
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+      }
+
+      if (translated === 0) {
+        showToast('Keine deutschen URLs zum Übersetzen gefunden');
+      }
     }
   </script>
 
