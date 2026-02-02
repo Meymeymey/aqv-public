@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slider Anleitung - Schritt für Schritt</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    h1 {
+      color: #003366;
+      font-size: 2.2rem;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 1.1rem;
+    }
+
+    .step {
+      background: #fff;
+      border-radius: 12px;
+      padding: 25px 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      position: relative;
+      border-left: 4px solid #0099cc;
+    }
+
+    .step-number {
+      position: absolute;
+      top: -12px;
+      left: 20px;
+      background: #0099cc;
+      color: #fff;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.1rem;
+      box-shadow: 0 2px 6px rgba(0,153,204,0.4);
+    }
+
+    .step h2 {
+      color: #003366;
+      font-size: 1.3rem;
+      margin-bottom: 12px;
+      padding-left: 5px;
+    }
+
+    .step p {
+      color: #444;
+      margin-bottom: 12px;
+    }
+
+    .step ul {
+      margin-left: 20px;
+      color: #444;
+    }
+
+    .step li {
+      margin-bottom: 8px;
+    }
+
+    .highlight {
+      background: #e8f4f8;
+      border-radius: 6px;
+      padding: 15px;
+      margin-top: 12px;
+    }
+
+    .highlight code {
+      background: #d0e8f0;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 0.9rem;
+    }
+
+    .tip {
+      background: #fff8e6;
+      border-left: 4px solid #f0a500;
+      padding: 12px 15px;
+      margin-top: 12px;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.95rem;
+    }
+
+    .tip strong {
+      color: #c08000;
+    }
+
+    .warning {
+      background: #fde8e8;
+      border-left: 4px solid #d32f2f;
+      padding: 12px 15px;
+      margin-top: 12px;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.95rem;
+    }
+
+    .warning strong {
+      color: #b71c1c;
+    }
+
+    .file-list {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 15px 20px;
+      margin-top: 15px;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .file-item:last-child {
+      border-bottom: none;
+    }
+
+    .file-icon {
+      font-size: 1.3rem;
+    }
+
+    .file-name {
+      font-weight: 600;
+      color: #003366;
+    }
+
+    .file-desc {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .columns-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      font-size: 0.9rem;
+    }
+
+    .columns-table th {
+      background: #003366;
+      color: #fff;
+      padding: 10px 12px;
+      text-align: left;
+    }
+
+    .columns-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .columns-table tr:nth-child(even) {
+      background: #f8f9fa;
+    }
+
+    .required {
+      color: #d32f2f;
+      font-weight: 600;
+    }
+
+    .optional {
+      color: #666;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #ddd;
+      color: #888;
+      font-size: 0.9rem;
+    }
+
+    a {
+      color: #0099cc;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .done-section {
+      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+      border-left-color: #28a745;
+    }
+
+    .done-section .step-number {
+      background: #28a745;
+      box-shadow: 0 2px 6px rgba(40,167,69,0.4);
+    }
+
+    .screenshot {
+      margin-top: 15px;
+      background: #f0f0f0;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .screenshot img {
+      max-width: 100%;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .screenshot img:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+
+    .screenshot-caption {
+      margin-top: 8px;
+      font-size: 0.85rem;
+      color: #666;
+      font-style: italic;
+    }
+
+    /* Lightbox Overlay */
+    .lightbox-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 9999;
+      cursor: pointer;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .lightbox-overlay.active {
+      display: flex;
+    }
+
+    .lightbox-overlay img {
+      max-width: 95%;
+      max-height: 95%;
+      border-radius: 8px;
+      box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      color: #fff;
+      font-size: 40px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .lightbox-close:hover {
+      color: #0099cc;
+    }
+
+    .btn-link {
+      display: inline-block;
+      background: #0099cc;
+      color: #fff !important;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: 600;
+      margin-top: 10px;
+      text-decoration: none !important;
+      transition: background 0.3s;
+    }
+
+    .btn-link:hover {
+      background: #007aa3;
+    }
+
+    .substeps {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 15px 20px;
+      margin-top: 15px;
+    }
+
+    .substeps ol {
+      margin-left: 20px;
+      color: #444;
+    }
+
+    .substeps li {
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <header>
+      <h1>🎠 Slider aktualisieren</h1>
+      <p class="subtitle">Schritt-für-Schritt Anleitung</p>
+    </header>
+
+    <!-- Benötigte Dateien -->
+    <div class="step">
+      <div class="step-number">📁</div>
+      <h2>Benötigte Dateien</h2>
+      <p>Stelle sicher, dass du folgende Dateien hast:</p>
+      <div class="file-list">
+        <div class="file-item">
+          <span class="file-icon">📊</span>
+          <div>
+            <div class="file-name">slider_content_excel.csv</div>
+            <div class="file-desc">Vorlage mit allen Slide-Inhalten (in Google Sheets bearbeiten)</div>
+          </div>
+        </div>
+        <div class="file-item">
+          <span class="file-icon">⚙️</span>
+          <div>
+            <div class="file-name">slider_generator.html</div>
+            <div class="file-desc">Browser-Tool zum Generieren des HTML-Sliders</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Schritt 0 -->
+    <div class="step">
+      <div class="step-number">0</div>
+      <h2>Grafiken in WordPress hochladen</h2>
+      <p>Bevor du beginnst, müssen alle Bilder für die Slides in der WordPress-Mediathek verfügbar sein.</p>
+
+      <div class="substeps">
+        <ol>
+          <li>Gehe zu <strong>WordPress → Medien</strong> (linke Seitenleiste)</li>
+          <li>Lade neue Grafiken hoch oder wähle vorhandene aus</li>
+          <li><strong>Klicke auf ein Bild</strong> um die Details zu öffnen</li>
+          <li>Klicke auf <strong>„URL in Zwischenablage kopieren"</strong></li>
+          <li>Füge die URL direkt in Google Sheets ein (Spalte GrafikURL)</li>
+        </ol>
+      </div>
+
+      <div class="screenshot">
+        <img src="https://aquaventus.org/wp-content/uploads/2026/01/Screenshot-2026-01-22-103755.png" alt="WordPress Mediathek Übersicht">
+        <p class="screenshot-caption">WordPress → Medien → Bild anklicken</p>
+      </div>
+
+      <div class="screenshot">
+        <img src="https://aquaventus.org/wp-content/uploads/2026/01/Screenshot-2026-01-22-103849.png" alt="WordPress Mediathek - URL kopieren">
+        <p class="screenshot-caption">Rechts auf „URL in Zwischenablage kopieren" klicken</p>
+      </div>
+
+      <div class="tip">
+        <strong>💡 Tipp:</strong> Die URL sieht so aus: <code>https://aquaventus.org/wp-content/uploads/2026/01/bild.jpg</code>
+      </div>
+    </div>
+
+    <!-- Schritt 1 -->
+    <div class="step">
+      <div class="step-number">1</div>
+      <h2>CSV in Google Sheets bearbeiten</h2>
+      <p>Die Slide-Inhalte werden in einer Tabelle gepflegt:</p>
+
+      <a href="https://docs.google.com/spreadsheets" target="_blank" class="btn-link">📊 Google Sheets öffnen</a>
+
+      <div class="substeps">
+        <ol>
+          <li>Klicke oben rechts auf das <strong>Ordner-Symbol</strong> („Open file picker")</li>
+          <li>Wähle den Tab <strong>„Upload"</strong></li>
+          <li>Klicke auf <strong>„Browse"</strong> oder ziehe die CSV-Datei hinein</li>
+          <li>Wähle <code>slider_content_excel.csv</code> aus</li>
+          <li>Bearbeite die Inhalte nach Belieben</li>
+          <li>Speichere als CSV: <strong>Datei → Herunterladen → CSV (.csv)</strong></li>
+        </ol>
+      </div>
+
+      <div class="screenshot">
+        <img src="https://aquaventus.org/wp-content/uploads/2026/01/Screenshot-2026-01-22-103339.png" alt="Google Sheets Startseite">
+        <p class="screenshot-caption">Oben rechts auf das Ordner-Symbol klicken („Open file picker")</p>
+      </div>
+
+      <div class="screenshot">
+        <img src="https://aquaventus.org/wp-content/uploads/2026/01/Screenshot-2026-01-22-103520.png" alt="Google Sheets Upload Dialog">
+        <p class="screenshot-caption">Tab „Upload" wählen → „Browse" klicken → CSV-Datei auswählen</p>
+      </div>
+
+      <h3 style="margin-top: 20px; margin-bottom: 10px; color: #003366;">Spalten-Übersicht:</h3>
+      <table class="columns-table">
+        <tr>
+          <th>Spalte</th>
+          <th>Beschreibung</th>
+          <th>Pflicht?</th>
+        </tr>
+        <tr>
+          <td><strong>Titel</strong></td>
+          <td>Überschrift der Slide (weiße Box)</td>
+          <td class="required">Ja</td>
+        </tr>
+        <tr>
+          <td><strong>Beschreibung</strong></td>
+          <td>Beschreibungstext (dunkle Box)</td>
+          <td class="required">Ja</td>
+        </tr>
+        <tr>
+          <td><strong>Link1</strong></td>
+          <td>URL für den ersten Button</td>
+          <td class="required">Ja</td>
+        </tr>
+        <tr>
+          <td><strong>Link1Text</strong></td>
+          <td>Beschriftung des ersten Buttons</td>
+          <td class="required">Ja</td>
+        </tr>
+        <tr>
+          <td><strong>Link2</strong></td>
+          <td>URL für optionalen zweiten Button</td>
+          <td class="optional">Nein</td>
+        </tr>
+        <tr>
+          <td><strong>Link2Text</strong></td>
+          <td>Beschriftung des zweiten Buttons</td>
+          <td class="optional">Nein</td>
+        </tr>
+        <tr>
+          <td><strong>GrafikURL</strong></td>
+          <td>WordPress-URL zum Hintergrundbild</td>
+          <td class="required">Ja</td>
+        </tr>
+      </table>
+
+      <div class="tip">
+        <strong>💡 Tipp:</strong> Jede Zeile = eine Slide. Du kannst beliebig viele Slides haben.
+      </div>
+    </div>
+
+    <!-- Schritt 2 -->
+    <div class="step">
+      <div class="step-number">2</div>
+      <h2>Slider Generator öffnen</h2>
+      <p>Der Generator ist eine HTML-Datei, die lokal im Browser läuft:</p>
+      <ul>
+        <li>Finde die Datei <code>slider_generator.html</code> auf deinem Computer</li>
+        <li>Doppelklick zum Öffnen (öffnet sich im Standard-Browser)</li>
+        <li>Oder: Rechtsklick → <strong>Öffnen mit</strong> → Chrome/Firefox/Edge</li>
+      </ul>
+      <div class="highlight">
+        <strong>Keine Installation nötig!</strong> Das Tool läuft komplett im Browser – deine Daten bleiben lokal.
+      </div>
+    </div>
+
+    <!-- Schritt 3 -->
+    <div class="step">
+      <div class="step-number">3</div>
+      <h2>CSV hochladen & HTML generieren</h2>
+      <p>Im Slider Generator:</p>
+      <ul>
+        <li>Klicke auf den Upload-Bereich oder ziehe deine CSV-Datei hinein</li>
+        <li>Prüfe die Vorschau-Tabelle – stimmen die Inhalte?</li>
+        <li>Klicke auf <strong>„HTML-Slider generieren"</strong></li>
+        <li>Die Datei <code>slider.html</code> wird automatisch heruntergeladen</li>
+      </ul>
+      <div class="tip">
+        <strong>💡 Tipp:</strong> Mit <strong>„Vorschau öffnen"</strong> kannst du den Slider vorher testen.
+      </div>
+    </div>
+
+    <!-- Schritt 4 -->
+    <div class="step">
+      <div class="step-number">4</div>
+      <h2>HTML in WordPress einfügen</h2>
+      <p>Jetzt kommt der neue Slider auf die Website:</p>
+
+      <div class="substeps">
+        <ol>
+          <li>Öffne die <strong>Homepage</strong> in WordPress</li>
+          <li>Klicke auf <strong>„Mit Elementor bearbeiten"</strong></li>
+          <li>Finde den bestehenden Slider (Custom HTML Widget)</li>
+          <li>Klicke auf das Widget zum Bearbeiten</li>
+          <li><strong>Lösche den gesamten alten Code</strong></li>
+          <li>Öffne die heruntergeladene <code>slider.html</code> mit einem Texteditor (Rechtsklick → Öffnen mit → Editor/Notepad)</li>
+          <li>Kopiere <strong>alles</strong> (Strg+A, dann Strg+C)</li>
+          <li>Füge es in das Custom HTML Widget ein (Strg+V)</li>
+        </ol>
+      </div>
+
+      <div class="warning">
+        <strong>⚠️ Wichtig:</strong> Lösche wirklich den kompletten alten Code, bevor du den neuen einfügst. Nicht nur Teile ersetzen!
+      </div>
+    </div>
+
+    <!-- Schritt 5 -->
+    <div class="step done-section">
+      <div class="step-number">5</div>
+      <h2>Veröffentlichen – Fertig! ✓</h2>
+      <p>Fast geschafft:</p>
+      <ul>
+        <li>Klicke unten links auf <strong>„Aktualisieren"</strong> (grüner Button)</li>
+        <li>Warte bis die Änderungen gespeichert sind</li>
+        <li>Öffne die Website in einem neuen Tab und prüfe den Slider</li>
+      </ul>
+      <div class="highlight">
+        <strong>🎉 Geschafft!</strong> Der neue Slider ist jetzt live auf der Website.
+      </div>
+    </div>
+
+    <footer>
+      <p>Bei Fragen oder Problemen: Diese Anleitung erneut durchgehen oder Entwickler kontaktieren.</p>
+    </footer>
+
+  </div>
+
+  <!-- Lightbox für vergrößerte Screenshots -->
+  <div class="lightbox-overlay" id="lightbox">
+    <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+    <img src="" alt="Vergrößerter Screenshot" id="lightbox-img">
+  </div>
+
+  <script>
+    // Lightbox Funktionalität
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+
+    // Alle Screenshot-Bilder klickbar machen
+    document.querySelectorAll('.screenshot img').forEach(img => {
+      img.onclick = function() {
+        lightboxImg.src = this.src;
+        lightbox.classList.add('active');
+      };
+    });
+
+    function closeLightbox() {
+      lightbox.classList.remove('active');
+    }
+
+    // Schließen bei Klick auf Overlay
+    lightbox.onclick = function(e) {
+      if (e.target === lightbox) {
+        closeLightbox();
+      }
+    };
+
+    // Schließen mit Escape-Taste
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeLightbox();
+      }
+    });
+  </script>
+
+</body>
+</html>
