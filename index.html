@@ -708,6 +708,30 @@
     .translation-status.no-translation {
       color: #dc3545;
     }
+
+    /* German reference text in EN mode */
+    .de-reference {
+      display: none;
+      background: #fff3cd;
+      border-left: 3px solid #ffc107;
+      padding: 8px 12px;
+      margin-bottom: 8px;
+      font-size: 0.85rem;
+      color: #664d03;
+      border-radius: 0 4px 4px 0;
+    }
+
+    .de-reference.visible {
+      display: block;
+    }
+
+    .de-reference-label {
+      font-weight: 600;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: #997404;
+      margin-bottom: 2px;
+    }
   </style>
 </head>
 <body>
@@ -754,11 +778,19 @@
           <h3>📝 Inhalt <span class="lang-indicator" id="contentLangIndicator">DE</span></h3>
           <div class="form-group">
             <label>Titel</label>
+            <div class="de-reference" id="titleDeRef">
+              <div class="de-reference-label">🇩🇪 Deutscher Text:</div>
+              <span id="titleDeRefText"></span>
+            </div>
             <input type="text" id="slideTitle" placeholder="z.B. Zukunft erleben" oninput="updateSlide()">
             <div class="translation-status" id="titleTranslationStatus"></div>
           </div>
           <div class="form-group">
             <label>Beschreibung</label>
+            <div class="de-reference" id="descriptionDeRef">
+              <div class="de-reference-label">🇩🇪 Deutscher Text:</div>
+              <span id="descriptionDeRefText"></span>
+            </div>
             <textarea id="slideDescription" placeholder="Beschreibungstext für die Slide..." oninput="updateSlide()"></textarea>
             <div class="translation-status" id="descriptionTranslationStatus"></div>
           </div>
@@ -845,11 +877,19 @@
           <div class="form-row">
             <div class="form-group">
               <label>Button 1 Text</label>
+              <div class="de-reference" id="button1TextDeRef">
+                <div class="de-reference-label">🇩🇪 DE:</div>
+                <span id="button1TextDeRefText"></span>
+              </div>
               <input type="text" id="slideButton1Text" placeholder="z.B. Mehr erfahren" oninput="updateSlide()">
               <div class="translation-status" id="button1TextTranslationStatus"></div>
             </div>
             <div class="form-group">
               <label>Button 1 Link</label>
+              <div class="de-reference" id="button1LinkDeRef">
+                <div class="de-reference-label">🇩🇪 DE Link:</div>
+                <span id="button1LinkDeRefText" style="word-break:break-all;"></span>
+              </div>
               <div class="link-input-wrapper">
                 <input type="text" id="slideButton1Link" placeholder="https://..." oninput="updateSlide()">
                 <button type="button" class="btn-translate" onclick="translateUrl('slideButton1Link')" title="URL übersetzen (hreflang)">🌐</button>
@@ -861,11 +901,19 @@
           <div class="form-row">
             <div class="form-group">
               <label>Button 2 Text (optional)</label>
+              <div class="de-reference" id="button2TextDeRef">
+                <div class="de-reference-label">🇩🇪 DE:</div>
+                <span id="button2TextDeRefText"></span>
+              </div>
               <input type="text" id="slideButton2Text" placeholder="z.B. Kontakt" oninput="updateSlide()">
               <div class="translation-status" id="button2TextTranslationStatus"></div>
             </div>
             <div class="form-group">
               <label>Button 2 Link</label>
+              <div class="de-reference" id="button2LinkDeRef">
+                <div class="de-reference-label">🇩🇪 DE Link:</div>
+                <span id="button2LinkDeRefText" style="word-break:break-all;"></span>
+              </div>
               <div class="link-input-wrapper">
                 <input type="text" id="slideButton2Link" placeholder="https://..." oninput="updateSlide()">
                 <button type="button" class="btn-translate" onclick="translateUrl('slideButton2Link')" title="URL übersetzen (hreflang)">🌐</button>
@@ -1127,14 +1175,27 @@
       // Migrate old format to new bilingual format if needed
       slide = migrateSlideFormat(slide);
 
-      // Load language-specific fields based on currentLanguage
       const lang = currentLanguage;
+      const isEnglish = lang === 'en';
+
+      // Load language-specific fields based on currentLanguage
+      // For links: if EN is empty, use DE value so it can be translated
       document.getElementById('slideTitle').value = slide[`title_${lang}`] || '';
       document.getElementById('slideDescription').value = slide[`description_${lang}`] || '';
       document.getElementById('slideButton1Text').value = slide[`button1Text_${lang}`] || '';
-      document.getElementById('slideButton1Link').value = slide[`button1Link_${lang}`] || '';
       document.getElementById('slideButton2Text').value = slide[`button2Text_${lang}`] || '';
-      document.getElementById('slideButton2Link').value = slide[`button2Link_${lang}`] || '';
+
+      // For links: if EN is empty, show DE link so it can be translated with 🌐 button
+      const btn1LinkEN = slide.button1Link_en || '';
+      const btn1LinkDE = slide.button1Link_de || '';
+      document.getElementById('slideButton1Link').value = isEnglish ? (btn1LinkEN || btn1LinkDE) : btn1LinkDE;
+
+      const btn2LinkEN = slide.button2Link_en || '';
+      const btn2LinkDE = slide.button2Link_de || '';
+      document.getElementById('slideButton2Link').value = isEnglish ? (btn2LinkEN || btn2LinkDE) : btn2LinkDE;
+
+      // Show/hide German references in EN mode
+      updateGermanReferences(slide, isEnglish);
 
       // Shared fields
       document.getElementById('slideImage').value = slide.image || '';
@@ -1162,6 +1223,33 @@
 
       // Update translation status indicators
       updateTranslationStatus(slide);
+    }
+
+    // Show German text references when in EN mode
+    function updateGermanReferences(slide, isEnglish) {
+      const refs = [
+        { refId: 'titleDeRef', textId: 'titleDeRefText', field: 'title_de' },
+        { refId: 'descriptionDeRef', textId: 'descriptionDeRefText', field: 'description_de' },
+        { refId: 'button1TextDeRef', textId: 'button1TextDeRefText', field: 'button1Text_de' },
+        { refId: 'button1LinkDeRef', textId: 'button1LinkDeRefText', field: 'button1Link_de' },
+        { refId: 'button2TextDeRef', textId: 'button2TextDeRefText', field: 'button2Text_de' },
+        { refId: 'button2LinkDeRef', textId: 'button2LinkDeRefText', field: 'button2Link_de' }
+      ];
+
+      refs.forEach(({ refId, textId, field }) => {
+        const refEl = document.getElementById(refId);
+        const textEl = document.getElementById(textId);
+        if (!refEl || !textEl) return;
+
+        const deValue = slide[field] || '';
+
+        if (isEnglish && deValue) {
+          textEl.textContent = deValue;
+          refEl.classList.add('visible');
+        } else {
+          refEl.classList.remove('visible');
+        }
+      });
     }
 
     // Migrate old slide format to new bilingual format
