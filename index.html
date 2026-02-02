@@ -922,6 +922,13 @@
               <div class="translation-status" id="button2LinkTranslationStatus"></div>
             </div>
           </div>
+          <!-- Translate All Button (only visible in EN mode) -->
+          <div id="translateAllContainer" style="display:none; margin-top:15px; padding-top:15px; border-top:1px solid #eee;">
+            <button class="btn btn-primary" onclick="translateAllUrls()" id="translateAllBtn">
+              🌐 Alle Links übersetzen
+            </button>
+            <small style="display:block; margin-top:8px; color:#666;">Übersetzt alle deutschen Links in diesem Slide zu Englisch</small>
+          </div>
         </div>
       </div>
     </section>
@@ -1031,6 +1038,9 @@
       // Preview parallax effect
       setupPreviewParallax();
       updateLanguageIndicators();
+
+      // Hide translate buttons in DE mode (default)
+      updateTranslateButtonsVisibility(currentLanguage === 'en');
     });
 
     // Switch language
@@ -1044,6 +1054,9 @@
       // Update language indicators
       updateLanguageIndicators();
 
+      // Show/hide translate buttons (only in EN mode)
+      updateTranslateButtonsVisibility(lang === 'en');
+
       // Reload current slide with new language
       if (currentSlideIndex >= 0) {
         loadSlideToEditor(slides[currentSlideIndex]);
@@ -1053,6 +1066,21 @@
       updatePreview();
 
       showToast(lang === 'de' ? 'Deutsch ausgewählt' : 'English selected');
+    }
+
+    // Show/hide translate buttons based on language mode
+    function updateTranslateButtonsVisibility(isEnglish) {
+      // Individual translate buttons
+      const translateBtns = document.querySelectorAll('.btn-translate');
+      translateBtns.forEach(btn => {
+        btn.style.display = isEnglish ? 'flex' : 'none';
+      });
+
+      // "Translate All" container
+      const translateAllContainer = document.getElementById('translateAllContainer');
+      if (translateAllContainer) {
+        translateAllContainer.style.display = isEnglish ? 'block' : 'none';
+      }
     }
 
     // Update language indicators in editor
