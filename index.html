@@ -651,6 +651,63 @@
       0%, 100% { opacity: 1; }
       50% { opacity: 0.5; }
     }
+
+    /* Language Switcher */
+    .lang-switcher {
+      display: flex;
+      gap: 0;
+      background: #f0f2f5;
+      border-radius: 8px;
+      padding: 4px;
+      margin-right: 20px;
+    }
+
+    .lang-btn {
+      padding: 8px 16px;
+      border: none;
+      background: transparent;
+      color: #666;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .lang-btn:hover {
+      color: #003366;
+    }
+
+    .lang-btn.active {
+      background: #003366;
+      color: #fff;
+    }
+
+    .lang-indicator {
+      display: inline-block;
+      padding: 2px 8px;
+      background: #0099cc;
+      color: #fff;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    .translation-status {
+      font-size: 0.75rem;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    .translation-status.has-translation {
+      color: #28a745;
+    }
+
+    .translation-status.no-translation {
+      color: #dc3545;
+    }
   </style>
 </head>
 <body>
@@ -659,6 +716,10 @@
   <header class="editor-header">
     <h1>🎠 Slider Editor</h1>
     <div class="header-actions">
+      <div class="lang-switcher">
+        <button class="lang-btn active" id="langDE" onclick="switchLanguage('de')">🇩🇪 DE</button>
+        <button class="lang-btn" id="langEN" onclick="switchLanguage('en')">🇬🇧 EN</button>
+      </div>
       <button class="btn btn-secondary" onclick="showLoadModal()">📂 Laden</button>
       <button class="btn btn-secondary" onclick="showSaveModal()">💾 Speichern</button>
       <button class="btn btn-success" onclick="showExportModal()">📋 HTML exportieren</button>
@@ -690,14 +751,16 @@
       <div id="slideEditor" style="display: none;">
         <!-- Inhalt -->
         <div class="editor-card">
-          <h3>📝 Inhalt</h3>
+          <h3>📝 Inhalt <span class="lang-indicator" id="contentLangIndicator">DE</span></h3>
           <div class="form-group">
             <label>Titel</label>
             <input type="text" id="slideTitle" placeholder="z.B. Zukunft erleben" oninput="updateSlide()">
+            <div class="translation-status" id="titleTranslationStatus"></div>
           </div>
           <div class="form-group">
             <label>Beschreibung</label>
             <textarea id="slideDescription" placeholder="Beschreibungstext für die Slide..." oninput="updateSlide()"></textarea>
+            <div class="translation-status" id="descriptionTranslationStatus"></div>
           </div>
         </div>
 
@@ -778,33 +841,37 @@
 
         <!-- Buttons -->
         <div class="editor-card">
-          <h3>🔗 Buttons</h3>
+          <h3>🔗 Buttons <span class="lang-indicator" id="buttonsLangIndicator">DE</span></h3>
           <div class="form-row">
             <div class="form-group">
               <label>Button 1 Text</label>
               <input type="text" id="slideButton1Text" placeholder="z.B. Mehr erfahren" oninput="updateSlide()">
+              <div class="translation-status" id="button1TextTranslationStatus"></div>
             </div>
             <div class="form-group">
               <label>Button 1 Link</label>
               <div class="link-input-wrapper">
                 <input type="text" id="slideButton1Link" placeholder="https://..." oninput="updateSlide()">
-                <button type="button" class="btn-translate" onclick="translateUrl('slideButton1Link')" title="Deutsche URL in englische übersetzen (hreflang)">🌐</button>
+                <button type="button" class="btn-translate" onclick="translateUrl('slideButton1Link')" title="URL übersetzen (hreflang)">🌐</button>
               </div>
-              <small>Klicke 🌐 um die englische Version einer deutschen URL zu finden</small>
+              <small>Klicke 🌐 um die Übersetzung der URL zu finden</small>
+              <div class="translation-status" id="button1LinkTranslationStatus"></div>
             </div>
           </div>
           <div class="form-row">
             <div class="form-group">
               <label>Button 2 Text (optional)</label>
               <input type="text" id="slideButton2Text" placeholder="z.B. Kontakt" oninput="updateSlide()">
+              <div class="translation-status" id="button2TextTranslationStatus"></div>
             </div>
             <div class="form-group">
               <label>Button 2 Link</label>
               <div class="link-input-wrapper">
                 <input type="text" id="slideButton2Link" placeholder="https://..." oninput="updateSlide()">
-                <button type="button" class="btn-translate" onclick="translateUrl('slideButton2Link')" title="Deutsche URL in englische übersetzen (hreflang)">🌐</button>
+                <button type="button" class="btn-translate" onclick="translateUrl('slideButton2Link')" title="URL übersetzen (hreflang)">🌐</button>
               </div>
-              <small>Klicke 🌐 um die englische Version einer deutschen URL zu finden</small>
+              <small>Klicke 🌐 um die Übersetzung der URL zu finden</small>
+              <div class="translation-status" id="button2LinkTranslationStatus"></div>
             </div>
           </div>
         </div>
@@ -830,8 +897,9 @@
   <!-- Export Modal -->
   <div class="modal-overlay" id="exportModal">
     <div class="modal">
-      <h2>HTML-Code exportieren</h2>
-      <p style="margin-bottom:15px;color:#666;">Kopiere diesen Code und füge ihn in das Custom HTML Widget in Elementor ein:</p>
+      <h2>HTML-Code exportieren <span class="lang-indicator" id="exportLangIndicator">DE</span></h2>
+      <p style="margin-bottom:15px;color:#666;">Kopiere diesen Code und füge ihn in das Custom HTML Widget in Elementor ein.<br>
+      <strong>Hinweis:</strong> Export nutzt die aktuell gewählte Sprache (<span id="exportLangText">Deutsch</span>).</p>
       <div class="code-output" id="codeOutput"></div>
       <div class="modal-actions">
         <button class="btn btn-secondary" onclick="closeExportModal()">Schließen</button>
@@ -902,6 +970,7 @@
     // Slide-Daten
     let slides = [];
     let currentSlideIndex = -1;
+    let currentLanguage = 'de'; // 'de' or 'en'
 
     // Initialisierung
     document.addEventListener('DOMContentLoaded', () => {
@@ -913,7 +982,74 @@
 
       // Preview parallax effect
       setupPreviewParallax();
+      updateLanguageIndicators();
     });
+
+    // Switch language
+    function switchLanguage(lang) {
+      currentLanguage = lang;
+
+      // Update button states
+      document.getElementById('langDE').classList.toggle('active', lang === 'de');
+      document.getElementById('langEN').classList.toggle('active', lang === 'en');
+
+      // Update language indicators
+      updateLanguageIndicators();
+
+      // Reload current slide with new language
+      if (currentSlideIndex >= 0) {
+        loadSlideToEditor(slides[currentSlideIndex]);
+      }
+
+      // Update preview
+      updatePreview();
+
+      showToast(lang === 'de' ? 'Deutsch ausgewählt' : 'English selected');
+    }
+
+    // Update language indicators in editor
+    function updateLanguageIndicators() {
+      const langText = currentLanguage === 'de' ? 'DE' : 'EN';
+      const indicators = ['contentLangIndicator', 'buttonsLangIndicator'];
+      indicators.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = langText;
+      });
+    }
+
+    // Update translation status for a field
+    function updateTranslationStatus(slide) {
+      const fields = [
+        { statusId: 'titleTranslationStatus', deField: 'title_de', enField: 'title_en' },
+        { statusId: 'descriptionTranslationStatus', deField: 'description_de', enField: 'description_en' },
+        { statusId: 'button1TextTranslationStatus', deField: 'button1Text_de', enField: 'button1Text_en' },
+        { statusId: 'button1LinkTranslationStatus', deField: 'button1Link_de', enField: 'button1Link_en' },
+        { statusId: 'button2TextTranslationStatus', deField: 'button2Text_de', enField: 'button2Text_en' },
+        { statusId: 'button2LinkTranslationStatus', deField: 'button2Link_de', enField: 'button2Link_en' }
+      ];
+
+      fields.forEach(({ statusId, deField, enField }) => {
+        const statusEl = document.getElementById(statusId);
+        if (!statusEl) return;
+
+        const hasDE = slide[deField] && slide[deField].trim();
+        const hasEN = slide[enField] && slide[enField].trim();
+
+        if (hasDE && hasEN) {
+          statusEl.textContent = '✓ DE + EN vorhanden';
+          statusEl.className = 'translation-status has-translation';
+        } else if (hasDE && !hasEN) {
+          statusEl.textContent = '⚠ Nur DE vorhanden';
+          statusEl.className = 'translation-status no-translation';
+        } else if (!hasDE && hasEN) {
+          statusEl.textContent = '⚠ Nur EN vorhanden';
+          statusEl.className = 'translation-status no-translation';
+        } else {
+          statusEl.textContent = '';
+          statusEl.className = 'translation-status';
+        }
+      });
+    }
 
     // Setup preview parallax mouse tracking
     function setupPreviewParallax() {
@@ -946,16 +1082,24 @@
     function addSlide() {
       const newSlide = {
         id: Date.now(),
-        title: 'Neue Slide',
-        description: '',
+        // Bilingual text fields
+        title_de: 'Neue Slide',
+        title_en: 'New Slide',
+        description_de: '',
+        description_en: '',
+        button1Text_de: 'Mehr erfahren',
+        button1Text_en: 'Learn more',
+        button1Link_de: '',
+        button1Link_en: '',
+        button2Text_de: '',
+        button2Text_en: '',
+        button2Link_de: '',
+        button2Link_en: '',
+        // Shared fields (not language-specific)
         image: '',
         mediaType: 'image',
         layers: ['', '', '', '', ''],
-        parallaxStrength: 100,
-        button1Text: 'Mehr erfahren',
-        button1Link: '',
-        button2Text: '',
-        button2Link: ''
+        parallaxStrength: 100
       };
       slides.push(newSlide);
       renderSlideList();
@@ -980,13 +1124,20 @@
 
     // Slide in Editor laden
     function loadSlideToEditor(slide) {
-      document.getElementById('slideTitle').value = slide.title || '';
-      document.getElementById('slideDescription').value = slide.description || '';
+      // Migrate old format to new bilingual format if needed
+      slide = migrateSlideFormat(slide);
+
+      // Load language-specific fields based on currentLanguage
+      const lang = currentLanguage;
+      document.getElementById('slideTitle').value = slide[`title_${lang}`] || '';
+      document.getElementById('slideDescription').value = slide[`description_${lang}`] || '';
+      document.getElementById('slideButton1Text').value = slide[`button1Text_${lang}`] || '';
+      document.getElementById('slideButton1Link').value = slide[`button1Link_${lang}`] || '';
+      document.getElementById('slideButton2Text').value = slide[`button2Text_${lang}`] || '';
+      document.getElementById('slideButton2Link').value = slide[`button2Link_${lang}`] || '';
+
+      // Shared fields
       document.getElementById('slideImage').value = slide.image || '';
-      document.getElementById('slideButton1Text').value = slide.button1Text || '';
-      document.getElementById('slideButton1Link').value = slide.button1Link || '';
-      document.getElementById('slideButton2Text').value = slide.button2Text || '';
-      document.getElementById('slideButton2Link').value = slide.button2Link || '';
 
       // Load layers
       const layers = slide.layers || ['', '', '', '', ''];
@@ -1008,6 +1159,44 @@
       } else {
         updateMediaPreview(slide.image, mediaType);
       }
+
+      // Update translation status indicators
+      updateTranslationStatus(slide);
+    }
+
+    // Migrate old slide format to new bilingual format
+    function migrateSlideFormat(slide) {
+      // If already has bilingual fields, return as-is
+      if (slide.title_de !== undefined || slide.title_en !== undefined) {
+        return slide;
+      }
+
+      // Migrate old fields to new format (assume old content is German)
+      const migrated = {
+        ...slide,
+        title_de: slide.title || '',
+        title_en: '',
+        description_de: slide.description || '',
+        description_en: '',
+        button1Text_de: slide.button1Text || '',
+        button1Text_en: '',
+        button1Link_de: slide.button1Link || '',
+        button1Link_en: '',
+        button2Text_de: slide.button2Text || '',
+        button2Text_en: '',
+        button2Link_de: slide.button2Link || '',
+        button2Link_en: ''
+      };
+
+      // Remove old fields
+      delete migrated.title;
+      delete migrated.description;
+      delete migrated.button1Text;
+      delete migrated.button1Link;
+      delete migrated.button2Text;
+      delete migrated.button2Link;
+
+      return migrated;
     }
 
     // Parallax strength update
@@ -1079,19 +1268,24 @@
         layers.push(document.getElementById('layer' + i).value);
       }
 
-      slides[currentSlideIndex] = {
-        ...slides[currentSlideIndex],
-        title: document.getElementById('slideTitle').value,
-        description: document.getElementById('slideDescription').value,
-        image: document.getElementById('slideImage').value,
-        mediaType: mediaType,
-        layers: layers,
-        parallaxStrength: parseInt(document.getElementById('parallaxStrength').value) || 100,
-        button1Text: document.getElementById('slideButton1Text').value,
-        button1Link: document.getElementById('slideButton1Link').value,
-        button2Text: document.getElementById('slideButton2Text').value,
-        button2Link: document.getElementById('slideButton2Link').value
-      };
+      // Ensure slide has bilingual format
+      slides[currentSlideIndex] = migrateSlideFormat(slides[currentSlideIndex]);
+
+      const lang = currentLanguage;
+
+      // Update language-specific fields
+      slides[currentSlideIndex][`title_${lang}`] = document.getElementById('slideTitle').value;
+      slides[currentSlideIndex][`description_${lang}`] = document.getElementById('slideDescription').value;
+      slides[currentSlideIndex][`button1Text_${lang}`] = document.getElementById('slideButton1Text').value;
+      slides[currentSlideIndex][`button1Link_${lang}`] = document.getElementById('slideButton1Link').value;
+      slides[currentSlideIndex][`button2Text_${lang}`] = document.getElementById('slideButton2Text').value;
+      slides[currentSlideIndex][`button2Link_${lang}`] = document.getElementById('slideButton2Link').value;
+
+      // Update shared fields
+      slides[currentSlideIndex].image = document.getElementById('slideImage').value;
+      slides[currentSlideIndex].mediaType = mediaType;
+      slides[currentSlideIndex].layers = layers;
+      slides[currentSlideIndex].parallaxStrength = parseInt(document.getElementById('parallaxStrength').value) || 100;
 
       if (mediaType === 'parallax') {
         updateLayersPreview(layers);
@@ -1100,6 +1294,7 @@
       }
       renderSlideList();
       updatePreview();
+      updateTranslationStatus(slides[currentSlideIndex]);
     }
 
     // Medienvorschau aktualisieren
@@ -1145,10 +1340,17 @@
         return;
       }
 
+      const lang = currentLanguage;
       list.innerHTML = slides.map((slide, index) => {
+        // Migrate if needed for display
+        const s = migrateSlideFormat(slide);
+
         let typeIcon = '🖼️';
-        if (slide.mediaType === 'video') typeIcon = '🎥';
-        else if (slide.mediaType === 'parallax') typeIcon = '🎭';
+        if (s.mediaType === 'video') typeIcon = '🎥';
+        else if (s.mediaType === 'parallax') typeIcon = '🎭';
+
+        const title = s[`title_${lang}`] || s.title_de || s.title_en || 'Ohne Titel';
+        const description = s[`description_${lang}`] || s.description_de || s.description_en || '';
 
         return `
         <div class="slide-item ${index === currentSlideIndex ? 'active' : ''}" onclick="selectSlide(${index})">
@@ -1161,8 +1363,8 @@
               <button onclick="event.stopPropagation(); deleteSlide(${index})" title="Löschen" style="color:#dc3545">🗑️</button>
             </div>
           </div>
-          <div class="slide-item-title">${typeIcon} ${slide.title || 'Ohne Titel'}</div>
-          <div class="slide-item-preview">${slide.description ? slide.description.substring(0, 40) + '...' : 'Keine Beschreibung'}</div>
+          <div class="slide-item-title">${typeIcon} ${title}</div>
+          <div class="slide-item-preview">${description ? description.substring(0, 40) + '...' : 'Keine Beschreibung'}</div>
         </div>
       `}).join('');
     }
@@ -1186,8 +1388,10 @@
 
     // Slide duplizieren
     function duplicateSlide(index) {
-      const copy = { ...slides[index], id: Date.now(), layers: [...(slides[index].layers || [])] };
-      copy.title = copy.title + ' (Kopie)';
+      const original = migrateSlideFormat(slides[index]);
+      const copy = { ...original, id: Date.now(), layers: [...(original.layers || [])] };
+      if (copy.title_de) copy.title_de = copy.title_de + ' (Kopie)';
+      if (copy.title_en) copy.title_en = copy.title_en + ' (Copy)';
       slides.splice(index + 1, 0, copy);
       renderSlideList();
       selectSlide(index + 1);
@@ -1214,11 +1418,15 @@
         return;
       }
 
+      const lang = currentLanguage;
       container.innerHTML = slides.map((slide, index) => {
+        // Migrate if needed
+        const s = migrateSlideFormat(slide);
+
         let mediaHTML = '<div style="width:100%;height:100%;background:#333;"></div>';
 
-        if (slide.mediaType === 'parallax') {
-          const layers = slide.layers || [];
+        if (s.mediaType === 'parallax') {
+          const layers = s.layers || [];
           const filledLayers = layers.filter(l => l && l.trim());
           if (filledLayers.length > 0) {
             mediaHTML = '<div class="mini-slide-layers">';
@@ -1229,21 +1437,25 @@
             });
             mediaHTML += '</div>';
           }
-        } else if (slide.image) {
-          if (slide.mediaType === 'video') {
-            mediaHTML = `<video src="${slide.image}" class="mini-slide-video" autoplay loop muted playsinline></video>`;
+        } else if (s.image) {
+          if (s.mediaType === 'video') {
+            mediaHTML = `<video src="${s.image}" class="mini-slide-video" autoplay loop muted playsinline></video>`;
           } else {
-            mediaHTML = `<img src="${slide.image}" class="mini-slide-image" alt="">`;
+            mediaHTML = `<img src="${s.image}" class="mini-slide-image" alt="">`;
           }
         }
+
+        const title = s[`title_${lang}`] || s.title_de || 'Titel';
+        const description = s[`description_${lang}`] || s.description_de || '';
+        const button1Text = s[`button1Text_${lang}`] || s.button1Text_de || '';
 
         return `
         <div class="mini-slide ${index === currentSlideIndex ? 'active' : ''}">
           ${mediaHTML}
           <div class="mini-slide-content">
-            <div class="mini-slide-title">${slide.title || 'Titel'}</div>
-            ${slide.description ? `<div class="mini-slide-desc">${slide.description.substring(0, 100)}${slide.description.length > 100 ? '...' : ''}</div>` : ''}
-            ${slide.button1Text ? `<span class="mini-slide-button">${slide.button1Text}</span>` : ''}
+            <div class="mini-slide-title">${title}</div>
+            ${description ? `<div class="mini-slide-desc">${description.substring(0, 100)}${description.length > 100 ? '...' : ''}</div>` : ''}
+            ${button1Text ? `<span class="mini-slide-button">${button1Text}</span>` : ''}
           </div>
         </div>
       `;
@@ -1262,13 +1474,16 @@
       if (saved) {
         try {
           slides = JSON.parse(saved);
-          // Backwards compatibility
-          slides = slides.map(slide => ({
-            ...slide,
-            mediaType: slide.mediaType || 'image',
-            layers: slide.layers || ['', '', '', '', ''],
-            parallaxStrength: slide.parallaxStrength !== undefined ? slide.parallaxStrength : 100
-          }));
+          // Backwards compatibility - migrate all slides to new format
+          slides = slides.map(slide => {
+            const migrated = migrateSlideFormat(slide);
+            return {
+              ...migrated,
+              mediaType: migrated.mediaType || 'image',
+              layers: migrated.layers || ['', '', '', '', ''],
+              parallaxStrength: migrated.parallaxStrength !== undefined ? migrated.parallaxStrength : 100
+            };
+          });
           renderSlideList();
           if (slides.length > 0) {
             selectSlide(0);
@@ -1280,8 +1495,10 @@
       }
     }
 
-    // HTML-Code generieren
+    // HTML-Code generieren (uses current language)
     function generateHTML() {
+      const lang = currentLanguage;
+
       // Dots generieren
       let dotsHTML = '';
       slides.forEach((_, i) => {
@@ -1290,13 +1507,23 @@
 
       // Slides generieren
       let slidesHTML = '';
-      slides.forEach((slide, i) => {
+      slides.forEach((slideRaw, i) => {
+        const slide = migrateSlideFormat(slideRaw);
+
+        // Get language-specific content
+        const title = slide[`title_${lang}`] || slide.title_de || '';
+        const description = slide[`description_${lang}`] || slide.description_de || '';
+        const button1Text = slide[`button1Text_${lang}`] || slide.button1Text_de || '';
+        const button1Link = slide[`button1Link_${lang}`] || slide.button1Link_de || '';
+        const button2Text = slide[`button2Text_${lang}`] || slide.button2Text_de || '';
+        const button2Link = slide[`button2Link_${lang}`] || slide.button2Link_de || '';
+
         let buttonsHTML = '';
-        if (slide.button1Link && slide.button1Text) {
-          buttonsHTML += `          <a href="${slide.button1Link}" class="hero-slide-button">${slide.button1Text}</a>\n`;
+        if (button1Link && button1Text) {
+          buttonsHTML += `          <a href="${button1Link}" class="hero-slide-button">${button1Text}</a>\n`;
         }
-        if (slide.button2Link && slide.button2Text) {
-          buttonsHTML += `          <a href="${slide.button2Link}" class="hero-slide-button hero-slide-button--secondary">${slide.button2Text}</a>\n`;
+        if (button2Link && button2Text) {
+          buttonsHTML += `          <a href="${button2Link}" class="hero-slide-button hero-slide-button--secondary">${button2Text}</a>\n`;
         }
 
         // Media element(s)
@@ -1312,7 +1539,7 @@
         } else if (slide.mediaType === 'video') {
           mediaHTML = `        <video src="${slide.image || ''}" class="hero-slide-media hero-slide-video" autoplay loop muted playsinline></video>`;
         } else {
-          mediaHTML = `        <img src="${slide.image || ''}" alt="${slide.title || ''}" class="hero-slide-media hero-slide-image">`;
+          mediaHTML = `        <img src="${slide.image || ''}" alt="${title}" class="hero-slide-media hero-slide-image">`;
         }
 
         const parallaxStrength = slide.parallaxStrength !== undefined ? slide.parallaxStrength : 100;
@@ -1321,9 +1548,9 @@
       <div class="hero-slide" data-media-type="${slide.mediaType || 'image'}" data-parallax-strength="${parallaxStrength}">
 ${mediaHTML}
         <div class="hero-slide-content">
-          <h2 class="hero-slide-title">${slide.title || ''}</h2>
+          <h2 class="hero-slide-title">${title}</h2>
           <p class="hero-slide-description">
-            ${slide.description || ''}
+            ${description}
           </p>
 ${buttonsHTML.trimEnd()}
         </div>
@@ -1570,6 +1797,8 @@ ${slidesHTML}
     // Export Modal anzeigen
     function showExportModal() {
       document.getElementById('codeOutput').textContent = generateHTML();
+      document.getElementById('exportLangIndicator').textContent = currentLanguage === 'de' ? 'DE' : 'EN';
+      document.getElementById('exportLangText').textContent = currentLanguage === 'de' ? 'Deutsch' : 'English';
       document.getElementById('exportModal').classList.add('active');
     }
 
@@ -1638,13 +1867,16 @@ ${slidesHTML}
       if (saved) {
         try {
           slides = JSON.parse(saved);
-          // Backwards compatibility
-          slides = slides.map(slide => ({
-            ...slide,
-            mediaType: slide.mediaType || 'image',
-            layers: slide.layers || ['', '', '', '', ''],
-            parallaxStrength: slide.parallaxStrength !== undefined ? slide.parallaxStrength : 100
-          }));
+          // Backwards compatibility - migrate to bilingual format
+          slides = slides.map(slide => {
+            const migrated = migrateSlideFormat(slide);
+            return {
+              ...migrated,
+              mediaType: migrated.mediaType || 'image',
+              layers: migrated.layers || ['', '', '', '', ''],
+              parallaxStrength: migrated.parallaxStrength !== undefined ? migrated.parallaxStrength : 100
+            };
+          });
           renderSlideList();
           if (slides.length > 0) {
             selectSlide(0);
@@ -1687,8 +1919,15 @@ ${slidesHTML}
     }
 
     function downloadProjectCSV() {
-      // CSV Header
-      const headers = ['Titel', 'Beschreibung', 'GrafikURL', 'MediaType', 'ParallaxStrength', 'Link1', 'Link1Text', 'Link2', 'Link2Text', 'Layer1', 'Layer2', 'Layer3', 'Layer4', 'Layer5'];
+      // CSV Header with bilingual fields
+      const headers = [
+        'Title_DE', 'Title_EN',
+        'Description_DE', 'Description_EN',
+        'GrafikURL', 'MediaType', 'ParallaxStrength',
+        'Link1_DE', 'Link1_EN', 'Link1Text_DE', 'Link1Text_EN',
+        'Link2_DE', 'Link2_EN', 'Link2Text_DE', 'Link2Text_EN',
+        'Layer1', 'Layer2', 'Layer3', 'Layer4', 'Layer5'
+      ];
 
       // Escape function for CSV values
       const escapeCSV = (val) => {
@@ -1704,17 +1943,25 @@ ${slidesHTML}
       let csv = headers.join(';') + '\n';
 
       slides.forEach(slide => {
-        const layers = slide.layers || ['', '', '', '', ''];
+        // Ensure slide has bilingual format
+        const s = migrateSlideFormat(slide);
+        const layers = s.layers || ['', '', '', '', ''];
         const row = [
-          escapeCSV(slide.title || ''),
-          escapeCSV(slide.description || ''),
-          escapeCSV(slide.image || ''),
-          escapeCSV(slide.mediaType || 'image'),
-          escapeCSV(slide.parallaxStrength !== undefined ? slide.parallaxStrength : 100),
-          escapeCSV(slide.button1Link || ''),
-          escapeCSV(slide.button1Text || ''),
-          escapeCSV(slide.button2Link || ''),
-          escapeCSV(slide.button2Text || ''),
+          escapeCSV(s.title_de || ''),
+          escapeCSV(s.title_en || ''),
+          escapeCSV(s.description_de || ''),
+          escapeCSV(s.description_en || ''),
+          escapeCSV(s.image || ''),
+          escapeCSV(s.mediaType || 'image'),
+          escapeCSV(s.parallaxStrength !== undefined ? s.parallaxStrength : 100),
+          escapeCSV(s.button1Link_de || ''),
+          escapeCSV(s.button1Link_en || ''),
+          escapeCSV(s.button1Text_de || ''),
+          escapeCSV(s.button1Text_en || ''),
+          escapeCSV(s.button2Link_de || ''),
+          escapeCSV(s.button2Link_en || ''),
+          escapeCSV(s.button2Text_de || ''),
+          escapeCSV(s.button2Text_en || ''),
           escapeCSV(layers[0] || ''),
           escapeCSV(layers[1] || ''),
           escapeCSV(layers[2] || ''),
@@ -1729,7 +1976,7 @@ ${slidesHTML}
       const blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = 'slider_projekt.csv';
+      link.download = 'slider_projekt_bilingual.csv';
       link.click();
       showToast('CSV-Datei heruntergeladen!');
       closeSaveModal();
@@ -1747,13 +1994,16 @@ ${slidesHTML}
         if (file.name.endsWith('.json')) {
           try {
             slides = JSON.parse(content);
-            // Backwards compatibility
-            slides = slides.map(slide => ({
-              ...slide,
-              mediaType: slide.mediaType || 'image',
-              layers: slide.layers || ['', '', '', '', ''],
-              parallaxStrength: slide.parallaxStrength !== undefined ? slide.parallaxStrength : 100
-            }));
+            // Backwards compatibility - migrate to bilingual format
+            slides = slides.map(slide => {
+              const migrated = migrateSlideFormat(slide);
+              return {
+                ...migrated,
+                mediaType: migrated.mediaType || 'image',
+                layers: migrated.layers || ['', '', '', '', ''],
+                parallaxStrength: migrated.parallaxStrength !== undefined ? migrated.parallaxStrength : 100
+              };
+            });
             renderSlideList();
             if (slides.length > 0) {
               selectSlide(0);
@@ -1780,7 +2030,7 @@ ${slidesHTML}
       event.target.value = '';
     }
 
-    // CSV laden
+    // CSV laden (supports both old and new bilingual format)
     function loadFromCSV(content) {
       const firstLine = content.split('\n')[0];
       let delimiter = ',';
@@ -1790,36 +2040,88 @@ ${slidesHTML}
       const lines = content.trim().split('\n');
       const headers = lines[0].split(delimiter).map(h => h.trim().replace(/^["']|["']$/g, ''));
 
+      // Detect if this is the new bilingual format
+      const isBilingual = headers.includes('Title_DE') || headers.includes('Title_EN');
+
       slides = [];
 
       for (let i = 1; i < lines.length; i++) {
         if (!lines[i].trim()) continue;
 
         const values = parseCSVLine(lines[i], delimiter);
-        const mediaTypeIndex = headers.indexOf('MediaType');
-        const mediaTypeVal = mediaTypeIndex >= 0 ? values[mediaTypeIndex] : '';
-        const parallaxStrengthIndex = headers.indexOf('ParallaxStrength');
-        const parallaxStrengthVal = parallaxStrengthIndex >= 0 ? parseInt(values[parallaxStrengthIndex]) : 100;
-        const slide = {
-          id: Date.now() + i,
-          title: values[headers.indexOf('Titel')] || '',
-          description: values[headers.indexOf('Beschreibung')] || '',
-          button1Link: values[headers.indexOf('Link1')] || '',
-          button1Text: values[headers.indexOf('Link1Text')] || '',
-          button2Link: values[headers.indexOf('Link2')] || '',
-          button2Text: values[headers.indexOf('Link2Text')] || '',
-          image: values[headers.indexOf('GrafikURL')] || '',
-          mediaType: mediaTypeVal.toLowerCase() === 'video' ? 'video' :
-                     mediaTypeVal.toLowerCase() === 'parallax' ? 'parallax' : 'image',
-          parallaxStrength: isNaN(parallaxStrengthVal) ? 100 : parallaxStrengthVal,
-          layers: [
-            values[headers.indexOf('Layer1')] || '',
-            values[headers.indexOf('Layer2')] || '',
-            values[headers.indexOf('Layer3')] || '',
-            values[headers.indexOf('Layer4')] || '',
-            values[headers.indexOf('Layer5')] || ''
-          ]
+
+        // Helper to get value by header name
+        const getVal = (headerName) => {
+          const idx = headers.indexOf(headerName);
+          return idx >= 0 ? (values[idx] || '') : '';
         };
+
+        const mediaTypeVal = getVal('MediaType');
+        const parallaxStrengthVal = parseInt(getVal('ParallaxStrength')) || 100;
+
+        let slide;
+
+        if (isBilingual) {
+          // New bilingual format
+          slide = {
+            id: Date.now() + i,
+            title_de: getVal('Title_DE'),
+            title_en: getVal('Title_EN'),
+            description_de: getVal('Description_DE'),
+            description_en: getVal('Description_EN'),
+            button1Link_de: getVal('Link1_DE'),
+            button1Link_en: getVal('Link1_EN'),
+            button1Text_de: getVal('Link1Text_DE'),
+            button1Text_en: getVal('Link1Text_EN'),
+            button2Link_de: getVal('Link2_DE'),
+            button2Link_en: getVal('Link2_EN'),
+            button2Text_de: getVal('Link2Text_DE'),
+            button2Text_en: getVal('Link2Text_EN'),
+            image: getVal('GrafikURL'),
+            mediaType: mediaTypeVal.toLowerCase() === 'video' ? 'video' :
+                       mediaTypeVal.toLowerCase() === 'parallax' ? 'parallax' : 'image',
+            parallaxStrength: isNaN(parallaxStrengthVal) ? 100 : parallaxStrengthVal,
+            layers: [
+              getVal('Layer1'),
+              getVal('Layer2'),
+              getVal('Layer3'),
+              getVal('Layer4'),
+              getVal('Layer5')
+            ]
+          };
+        } else {
+          // Old single-language format (assume German, try to detect English from Title header)
+          const titleHeader = headers.includes('Titel') ? 'Titel' : 'Title';
+          const descHeader = headers.includes('Beschreibung') ? 'Beschreibung' : 'Description';
+
+          slide = {
+            id: Date.now() + i,
+            title_de: getVal(titleHeader),
+            title_en: '',
+            description_de: getVal(descHeader),
+            description_en: '',
+            button1Link_de: getVal('Link1'),
+            button1Link_en: '',
+            button1Text_de: getVal('Link1Text'),
+            button1Text_en: '',
+            button2Link_de: getVal('Link2'),
+            button2Link_en: '',
+            button2Text_de: getVal('Link2Text'),
+            button2Text_en: '',
+            image: getVal('GrafikURL'),
+            mediaType: mediaTypeVal.toLowerCase() === 'video' ? 'video' :
+                       mediaTypeVal.toLowerCase() === 'parallax' ? 'parallax' : 'image',
+            parallaxStrength: isNaN(parallaxStrengthVal) ? 100 : parallaxStrengthVal,
+            layers: [
+              getVal('Layer1'),
+              getVal('Layer2'),
+              getVal('Layer3'),
+              getVal('Layer4'),
+              getVal('Layer5')
+            ]
+          };
+        }
+
         slides.push(slide);
       }
 
@@ -1857,8 +2159,10 @@ ${slidesHTML}
       return values;
     }
 
-    // Translate German URL to English using hreflang
+    // Translate URL and store both DE and EN versions
     async function translateUrl(inputId) {
+      if (currentSlideIndex < 0) return;
+
       const input = document.getElementById(inputId);
       const url = input.value.trim();
 
@@ -1873,19 +2177,17 @@ ${slidesHTML}
         return;
       }
 
-      // Check if already English
-      if (url.includes('/en/')) {
-        showToast('URL ist bereits auf Englisch');
-        return;
-      }
-
       // Find the button and show loading state
       const btn = input.parentElement.querySelector('.btn-translate');
       btn.classList.add('loading');
       btn.disabled = true;
 
+      // Determine which field this is (button1Link or button2Link)
+      const fieldBase = inputId.replace('slide', '').replace('Link', 'Link');
+      const isEnglishUrl = url.includes('/en/');
+
       try {
-        // Fetch the German page
+        // Fetch the page
         const response = await fetch(url, {
           mode: 'cors',
           credentials: 'omit'
@@ -1897,42 +2199,76 @@ ${slidesHTML}
 
         const html = await response.text();
 
-        // Parse the HTML to find hreflang="en" link
+        // Parse the HTML to find hreflang links
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
 
-        // Look for hreflang="en" link
+        // Look for both German and English hreflang links
+        const germanLink = doc.querySelector('link[hreflang="de"]') ||
+                          doc.querySelector('link[hreflang="de-DE"]');
         const englishLink = doc.querySelector('link[hreflang="en"]') ||
                            doc.querySelector('link[hreflang="en-US"]') ||
                            doc.querySelector('link[hreflang="en-GB"]');
 
-        if (englishLink && englishLink.href) {
-          input.value = englishLink.href;
-          updateSlide();
-          showToast('Englische URL gefunden!');
-        } else {
-          // Try to find language switcher link
-          const langSwitcher = doc.querySelector('a[hreflang="en"]') ||
-                              doc.querySelector('.wpml-ls-link[href*="/en/"]') ||
-                              doc.querySelector('a.lang-en') ||
-                              doc.querySelector('a[href*="/en/"][class*="lang"]');
+        let germanUrl = germanLink ? germanLink.href : null;
+        let englishUrl = englishLink ? englishLink.href : null;
 
-          if (langSwitcher && langSwitcher.href) {
-            input.value = langSwitcher.href;
-            updateSlide();
-            showToast('Englische URL gefunden!');
-          } else {
-            showToast('Keine englische Version gefunden');
-          }
+        // Fallback to language switcher
+        if (!germanUrl || !englishUrl) {
+          const deSwitcher = doc.querySelector('a[hreflang="de"]') ||
+                            doc.querySelector('.wpml-ls-link[href*="aquaventus.org/"]:not([href*="/en/"])');
+          const enSwitcher = doc.querySelector('a[hreflang="en"]') ||
+                            doc.querySelector('.wpml-ls-link[href*="/en/"]');
+
+          if (!germanUrl && deSwitcher) germanUrl = deSwitcher.href;
+          if (!englishUrl && enSwitcher) englishUrl = enSwitcher.href;
         }
+
+        // If we started with one URL, use it for that language
+        if (isEnglishUrl) {
+          englishUrl = englishUrl || url;
+        } else {
+          germanUrl = germanUrl || url;
+        }
+
+        // Ensure slide has bilingual format
+        slides[currentSlideIndex] = migrateSlideFormat(slides[currentSlideIndex]);
+
+        // Store both URLs in the slide data
+        const slideFieldDE = fieldBase.charAt(0).toLowerCase() + fieldBase.slice(1) + '_de';
+        const slideFieldEN = fieldBase.charAt(0).toLowerCase() + fieldBase.slice(1) + '_en';
+
+        if (germanUrl) slides[currentSlideIndex][slideFieldDE] = germanUrl;
+        if (englishUrl) slides[currentSlideIndex][slideFieldEN] = englishUrl;
+
+        // Update the input to show the URL for current language
+        const currentLangUrl = currentLanguage === 'en' ? englishUrl : germanUrl;
+        if (currentLangUrl) {
+          input.value = currentLangUrl;
+        }
+
+        // Show success message
+        if (germanUrl && englishUrl) {
+          showToast('DE + EN URLs gespeichert!');
+        } else if (englishUrl) {
+          showToast('EN URL gefunden, DE fehlt');
+        } else if (germanUrl) {
+          showToast('DE URL gefunden, EN fehlt');
+        } else {
+          showToast('Keine Übersetzung gefunden');
+        }
+
+        // Update translation status
+        updateTranslationStatus(slides[currentSlideIndex]);
+
       } catch (error) {
         console.error('Translate URL error:', error);
 
         // CORS error - show helpful message
         if (error.message.includes('CORS') || error.message.includes('NetworkError') || error.name === 'TypeError') {
-          showToast('CORS-Fehler: Öffne diese Datei von aquaventus.org oder nutze einen lokalen Server');
+          showToast('CORS-Fehler: Öffne diese Datei von aquaventus.org');
         } else {
-          showToast('Fehler beim Laden der Seite: ' + error.message);
+          showToast('Fehler beim Laden: ' + error.message);
         }
       } finally {
         btn.classList.remove('loading');
@@ -1940,8 +2276,10 @@ ${slidesHTML}
       }
     }
 
-    // Batch translate all German URLs to English
+    // Batch translate all URLs for current slide
     async function translateAllUrls() {
+      if (currentSlideIndex < 0) return;
+
       const inputs = ['slideButton1Link', 'slideButton2Link'];
       let translated = 0;
 
@@ -1949,7 +2287,7 @@ ${slidesHTML}
         const input = document.getElementById(inputId);
         const url = input.value.trim();
 
-        if (url && url.includes('aquaventus.org') && !url.includes('/en/')) {
+        if (url && url.includes('aquaventus.org')) {
           await translateUrl(inputId);
           translated++;
           // Small delay between requests
@@ -1958,7 +2296,7 @@ ${slidesHTML}
       }
 
       if (translated === 0) {
-        showToast('Keine deutschen URLs zum Übersetzen gefunden');
+        showToast('Keine URLs zum Übersetzen gefunden');
       }
     }
   </script>
